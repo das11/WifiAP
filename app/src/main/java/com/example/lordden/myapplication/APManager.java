@@ -1,6 +1,7 @@
 package com.example.lordden.myapplication;
 
 import android.content.Context;
+import android.inputmethodservice.AbstractInputMethodService;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.util.Log;
@@ -9,7 +10,7 @@ import java.lang.reflect.Method;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Created by lordden on 26/6/16.
+ * Created by kdas on 26/6/16.
  */
 public class APManager {
 
@@ -70,6 +71,54 @@ public class APManager {
     public static void configWifi(Context context){
         WifiManager wman = (WifiManager)context.getSystemService(context.WIFI_SERVICE);
         wman.setWifiEnabled(true);
+    }
+
+    public static void configCred(Context context){
+
+        WifiManager WifiManager = (WifiManager)context.getSystemService(context.WIFI_SERVICE);
+        WifiConfiguration config = new WifiConfiguration();
+
+        Log.d("Cliop","1");
+
+        config.SSID = "Test AP";
+        config.preSharedKey = "\"passpass\"";
+        config.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
+        config.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+        config.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+        config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+        config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_EAP);
+        config.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+        config.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+        config.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
+        config.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
+
+        try{
+            Log.d("Cliop","2");
+
+            Method setAPMethod = WifiManager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
+            boolean APStatus = (Boolean)setAPMethod.invoke(WifiManager, config, true);
+
+            Method isAPEnabledMethod = WifiManager.getClass().getMethod("isWifiApEnabled");
+
+            Log.d("Cliop","3");
+            if (isAPon(context)){
+                WifiManager.setWifiEnabled(false);
+            }
+
+            Method getAPState = WifiManager.getClass().getMethod("getWifiApState");
+            int APState = (Integer)getAPState.invoke(WifiManager);
+
+            Method getAPConfigMethod = WifiManager.getClass().getMethod("getWifiApConfiguration");
+
+            config = (WifiConfiguration)getAPConfigMethod.invoke(WifiManager);
+
+            Log.d("Cliop","5");
+            Log.d("Client:", "\nSSID:" + config.SSID + "\nPass:" + config.preSharedKey);
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
     }
 
 }
