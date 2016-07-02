@@ -1,13 +1,11 @@
 package com.example.lordden.myapplication;
 
 import android.content.Context;
-import android.inputmethodservice.AbstractInputMethodService;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
 import java.lang.reflect.Method;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by kdas on 26/6/16.

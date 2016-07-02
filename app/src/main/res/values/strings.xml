@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Enable AP</string>
     <string name="action_settings">Settings</string>
+    <string name="btn1">Activate Beacon</string>
+    <string name="btn2">Active Tracking</string>
+    <string name="btn3">Targeted Tracking</string>
 </resources>
