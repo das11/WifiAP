@@ -38,4 +38,13 @@
         android:layout_below="@+id/btn2"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="45dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Test"
+        android:id="@+id/btn4"
+        android:layout_marginTop="33dp"
+        android:layout_below="@+id/btn3"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>

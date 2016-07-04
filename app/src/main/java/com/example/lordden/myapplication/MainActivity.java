@@ -37,10 +37,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Button btn1 = (Button)findViewById(R.id.btn1);
         Button btn2 = (Button)findViewById(R.id.btn2);
         Button btn3 = (Button)findViewById(R.id.btn3);
+        Button btn4 = (Button)findViewById(R.id.btn4);
 
         btn1.setOnClickListener(this);
         btn2.setOnClickListener(this);
         btn3.setOnClickListener(this);
+        btn4.setOnClickListener(this);
 
     }
 
@@ -94,8 +96,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     startActivity(i);
                     break;
                 case R.id.btn3 :
-                    //TODO
-
+                    Intent i3 = new Intent(MainActivity.this, target.class);
+                    startActivity(i3);
+                    break;
+                case R.id.btn4:
+                    Intent i4 = new Intent(MainActivity.this, MapsActivity.class);
                     break;
 
                 default: // not RAMBO

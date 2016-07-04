@@ -4,4 +4,5 @@
     <string name="btn1">Activate Beacon</string>
     <string name="btn2">Active Tracking</string>
     <string name="btn3">Targeted Tracking</string>
+    <string name="title_activity_maps">Map</string>
 </resources>

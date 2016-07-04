@@ -10,38 +10,67 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.widget.TextView;
 
 import java.util.List;
 
-
-public class Main2Activity extends AppCompatActivity {
+public class target extends AppCompatActivity {
 
     WifiManager wms;
-    TextView tv;
     Handler refresh = new Handler();
+    Thread th;
+    TextView tvt;
 
-    int delay = 5 * 1000;
+    boolean thread_kill = false;
+
+    int delay = 2 * 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main2);
+        setContentView(R.layout.activity_target);
 
-        APManager.configWifi(Main2Activity.this);
+        tvt = (TextView) findViewById(R.id.tvt);
 
-        tv = (TextView)findViewById(R.id.textView);
-
-        wms = (WifiManager)getSystemService(Context.WIFI_SERVICE);
+        wms = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         registerReceiver(mWifiScanReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
-        refresh.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                wms.startScan();
-            }
-        },delay);
+        // wms.startScan();
 
+
+        th = new Thread() {
+            public void run() {
+
+                while (!thread_kill) {
+                    try {
+                        Thread.sleep(3000);
+                        Log.d("REF ::::::", "r");
+                        wms.startScan();
+
+                    } catch (InterruptedException e) {
+                    }
+                }
+            }
+        };
+        th.start();
+
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent objEvent) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            onBackPressed();
+            return true;
+        }
+        return super.onKeyUp(keyCode, objEvent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.d("back", "back");
+        thread_kill = true;
+        finish();
     }
 
     @Override
@@ -72,22 +101,24 @@ public class Main2Activity extends AppCompatActivity {
                     lev = mScanResults.get(i).level;
                     dis = calculateDistance(mScanResults.get(i).level, mScanResults.get(i).frequency);
 
-                    datas[i] = ssid;
-                    datafreq[i] = freq + "";
-                    datalev[i] = lev + "";
-                    datadis[i] = dis + "";
+                    if (ssid.equals("Hash_Wave")){
+                        datas[i] = ssid;
+                        datafreq[i] = freq + "";
+                        datalev[i] = lev + "";
+                        datadis[i] = dis + "";
 
 
-                    sb.append("\n\nSSID :: " + datas[i] + " Freq :: " + datafreq[i] + " dBm ::" + datalev[i] + " dis ::" + datadis[i]);
+                        sb.append("\n\nSSID :: " + datas[i] + " Freq :: " + datafreq[i] + " dBm ::" + datalev[i] + " dis ::" + datadis[i]);
 
-                    Log.d("RE", sb.toString());
-                    Log.d("ss ::", "" + ssid);
-                    Log.d("dbm ::", "" + lev);
-                    Log.d("dis :: ", "" + dis);
+                        Log.d("RE", sb.toString());
+                        Log.d("ss ::", "" + ssid);
+                        Log.d("dbm ::", "" + lev);
+                        Log.d("dis :: ", "" + dis);
+                    }
 
                 }
                 Log.d("SR:", mScanResults + "");
-                tv.setText(sb.toString());
+                tvt.setText(sb.toString());
 
 
             }
@@ -99,4 +130,3 @@ public class Main2Activity extends AppCompatActivity {
         return Math.pow(10.0, exp);
     }
 }
-
