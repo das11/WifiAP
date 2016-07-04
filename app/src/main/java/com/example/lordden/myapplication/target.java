@@ -7,7 +7,6 @@ import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -18,13 +17,12 @@ import java.util.List;
 public class target extends AppCompatActivity {
 
     WifiManager wms;
-    Handler refresh = new Handler();
-    Thread th;
+    Thread refresh;
     TextView tvt;
 
     boolean thread_kill = false;
 
-    int delay = 2 * 1000;
+    int delay = 3 * 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,12 +37,12 @@ public class target extends AppCompatActivity {
         // wms.startScan();
 
 
-        th = new Thread() {
+        refresh = new Thread() {
             public void run() {
 
                 while (!thread_kill) {
                     try {
-                        Thread.sleep(3000);
+                        Thread.sleep(delay);
                         Log.d("REF ::::::", "r");
                         wms.startScan();
 
@@ -53,7 +51,7 @@ public class target extends AppCompatActivity {
                 }
             }
         };
-        th.start();
+        refresh.start();
 
     }
 

@@ -7,9 +7,9 @@ import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.widget.TextView;
 
 import java.util.List;
@@ -19,9 +19,11 @@ public class Main2Activity extends AppCompatActivity {
 
     WifiManager wms;
     TextView tv;
-    Handler refresh = new Handler();
+    Thread refresh;
 
-    int delay = 5 * 1000;
+    boolean thread_kill = false;
+
+    int delay = 3 * 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,13 +37,38 @@ public class Main2Activity extends AppCompatActivity {
         wms = (WifiManager)getSystemService(Context.WIFI_SERVICE);
         registerReceiver(mWifiScanReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
-        refresh.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                wms.startScan();
-            }
-        },delay);
+        refresh = new Thread(){
 
+            public void run(){
+                try{
+                    Thread.sleep(delay);
+                    Log.d("REF ::", "r");
+                    wms.startScan();
+                }catch (InterruptedException e){
+                    e.printStackTrace();
+                }
+            }
+        };
+        refresh.start();
+
+    }
+
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent objEvent){
+        if (keyCode == KeyEvent.KEYCODE_BACK){
+            onBackPressed();
+            return true;
+        }
+
+        return super.onKeyUp(keyCode, objEvent);
+    }
+
+    @Override
+    public void onBackPressed(){
+        Log.d("back","back");
+        thread_kill = true;
+        finish();
     }
 
     @Override

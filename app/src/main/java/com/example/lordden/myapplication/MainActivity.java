@@ -101,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case R.id.btn4:
                     Intent i4 = new Intent(MainActivity.this, MapsActivity.class);
+                    startActivity(i4);
                     break;
 
                 default: // not RAMBO
