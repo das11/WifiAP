@@ -63,7 +63,13 @@ public class TestNorth extends AppCompatActivity implements SensorEventListener{
             SensorManager.getRotationMatrix(mR, null, mLastAccelerometer, mLastMagnetometer);
             SensorManager.getOrientation(mR, mOrientation);
             float azimuthInRadians = mOrientation[0];
-            float azimuthInDegress = (float)(Math.toDegrees(azimuthInRadians)+360)%360;
+            float azimuthInDegress = (float)Math.toDegrees(azimuthInRadians);
+            if (azimuthInDegress < 0){
+                azimuthInDegress = azimuthInDegress + 360;
+            }
+
+            azimuthInDegress = azimuthInDegress - (float)97.241;
+            //float azimuthInDegress = (float)(Math.toDegrees(azimuthInRadians)+360)%360;
             //float azimuthInDegress = (float)115.451;
             Log.d("azimuth", azimuthInDegress + "");
             RotateAnimation ra = new RotateAnimation(

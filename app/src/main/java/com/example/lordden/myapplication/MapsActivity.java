@@ -64,7 +64,7 @@ public class MapsActivity extends FragmentActivity implements
     private double bearing;
     private  Firebase firelong, firelat;
 
-    private double testlong, testlat;
+    private double testlong, testlat = 0;
 
     boolean chk;
 
@@ -284,13 +284,13 @@ public class MapsActivity extends FragmentActivity implements
 
         res = Math.atan2(Math.toRadians(x),Math.toRadians(y));
         res = Math.toDegrees(res);
-//        if (res < 0){
-//            res = res + 360;
-//            Log.d("res - ", res + "");
-//
-//            return res;
-//        }
-        Log.d("res", "" + res);
+        if (res < 0){
+            res = res + 360;
+            Log.d("res - ", res + "");
+
+            return res;
+        }
+        Log.d("Bearing :: ", "" + res);
 
         return res;
     }
@@ -308,8 +308,14 @@ public class MapsActivity extends FragmentActivity implements
             SensorManager.getRotationMatrix(mR, null, mLastAccelerometer, mLastMagnetometer);
             SensorManager.getOrientation(mR, mOrientation);
             float azimuthInRadians = mOrientation[0];
-            float azimuthInDegress = ((float)(Math.toDegrees(azimuthInRadians)+360)%360);
-            azimuthInDegress = azimuthInDegress + (float)bearing;
+            float azimuthInDegress = (float)Math.toDegrees(azimuthInRadians);
+            if (azimuthInDegress < 0){
+                azimuthInDegress = azimuthInDegress + 360;
+            }
+
+            azimuthInDegress = azimuthInDegress - (float)bearing;
+            //float azimuthInDegress = ((float)(Math.toDegrees(azimuthInRadians)+360)%360) + (float)bearing;
+            //azimuthInDegress = azimuthInDegress + (float)97.241;
             //float azimuthInDegress = (float)bearing;
             Log.d("azimuth + bearing", azimuthInDegress + "");
             RotateAnimation ra = new RotateAnimation(
