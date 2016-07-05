@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:text="@string/btn1"
         android:id="@+id/btn1"
-        android:layout_marginTop="97dp"
+        android:layout_marginTop="50dp"
         android:layout_alignParentTop="true"
         android:layout_alignStart="@+id/btn2" />
 
@@ -47,4 +47,13 @@
         android:layout_marginTop="33dp"
         android:layout_below="@+id/btn3"
         android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pointer_test"
+        android:id="@+id/button"
+        android:layout_below="@+id/btn4"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="38dp" />
 </RelativeLayout>

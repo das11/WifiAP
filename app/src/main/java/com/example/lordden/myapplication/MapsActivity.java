@@ -11,9 +11,18 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
+import com.google.android.gms.ads.mediation.MediationAdapter;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
@@ -26,11 +35,24 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapsActivity extends FragmentActivity implements
+        SensorEventListener,
         OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         com.google.android.gms.location.LocationListener {
+
+    private ImageView mPointer;
+    private SensorManager mSensorManager;
+    private Sensor mAccelerometer;
+    private Sensor mMagnetometer;
+    private float[] mLastAccelerometer = new float[3];
+    private float[] mLastMagnetometer = new float[3];
+    private boolean mLastAccelerometerSet = false;
+    private boolean mLastMagnetometerSet = false;
+    private float[] mR = new float[9];
+    private float[] mOrientation = new float[3];
+    private float mCurrentDegree = 0f;
 
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
@@ -39,32 +61,12 @@ public class MapsActivity extends FragmentActivity implements
     private LocationRequest mLocationRequest;
     private Marker marker;
 
+    private double bearing;
+    private  Firebase firelong, firelat;
+
+    private double testlong, testlat;
+
     boolean chk;
-
-    private int mAzimuth = 0; // degree
-
-    SensorManager mSensorManager;
-
-    private SensorEventListener mSensorEventListener = new SensorEventListener() {
-
-        float[] orientation = new float[3];
-        float[] rMat = new float[9];
-
-        public void onAccuracyChanged( Sensor sensor, int accuracy ) {}
-
-        @Override
-        public void onSensorChanged( SensorEvent event ) {
-            if( event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR ){
-                // calculate th rotation matrix
-                SensorManager.getRotationMatrixFromVector( rMat, event.values );
-                // get the azimuth value (orientation[0]) in degree
-                mAzimuth = (int) ( Math.toDegrees( SensorManager.getOrientation( rMat, orientation )[0] ) + 360 ) % 360;
-
-                Log.d("Aziimuth", mAzimuth + "");
-            }
-        }
-    };
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,9 +77,42 @@ public class MapsActivity extends FragmentActivity implements
 //                .findFragmentById(R.id.map);
 //        mapFragment.getMapAsync(this);
 
-        Log.d("sens", "");
+        Firebase.setAndroidContext(this);
+        firelong = new Firebase("https://wifiap-1361.firebaseio.com/beacon_long");
+        firelat= new Firebase("https://wifiap-1361.firebaseio.com/beacon_lat");
+
+        firelong.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                double datalong = dataSnapshot.getValue(double.class);
+                testlong = datalong;
+                Log.d("firelonng", testlong + "");
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+        firelat.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                double datalat = dataSnapshot.getValue(double.class);
+                testlat = datalat;
+                Log.d("firelat", testlat + "");
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
-        mSensorManager.registerListener(mSensorEventListener, mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR), SensorManager.SENSOR_DELAY_NORMAL);
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        mPointer = (ImageView) findViewById(R.id.pointer_maps_act);
 
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -104,13 +139,18 @@ public class MapsActivity extends FragmentActivity implements
                 Log.d("2:2","11");
             }
         }
+
+
     }
 
     @Override
     protected void onResume(){
         super.onResume();
         mGoogleApiClient.connect();
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
+        mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_GAME);
     }
+
 
     @Override
     protected void onPause(){
@@ -118,6 +158,8 @@ public class MapsActivity extends FragmentActivity implements
         if (mGoogleApiClient.isConnected()){
             mGoogleApiClient.disconnect();
         }
+        mSensorManager.unregisterListener(this, mAccelerometer);
+        mSensorManager.unregisterListener(this, mMagnetometer);
     }
 
     public boolean checkperm(){
@@ -194,10 +236,8 @@ public class MapsActivity extends FragmentActivity implements
         double currentlong = location.getLongitude();
 
         //Test location
-        double testlong = 91.75411;
-        double testlat = 26.185160;
 
-        double bearing = bearing(currentlong, currentlat, testlong, testlat);
+        bearing = bearing(currentlong, currentlat, testlong, testlat);
 
         Toast.makeText(getApplicationContext(),"lat :: " + currentlat + "long :: " + currentlong + "\nDIRn : " + bearing,Toast.LENGTH_SHORT).show();
 
@@ -242,9 +282,55 @@ public class MapsActivity extends FragmentActivity implements
         Log.d("Y","" + y);
 
 
-        res = Math.toDegrees(Math.atan2(Math.toRadians(x),Math.toRadians(y)));
+        res = Math.atan2(Math.toRadians(x),Math.toRadians(y));
+        res = Math.toDegrees(res);
+//        if (res < 0){
+//            res = res + 360;
+//            Log.d("res - ", res + "");
+//
+//            return res;
+//        }
         Log.d("res", "" + res);
 
         return res;
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor == mAccelerometer) {
+            System.arraycopy(event.values, 0, mLastAccelerometer, 0, event.values.length);
+            mLastAccelerometerSet = true;
+        } else if (event.sensor == mMagnetometer) {
+            System.arraycopy(event.values, 0, mLastMagnetometer, 0, event.values.length);
+            mLastMagnetometerSet = true;
+        }
+        if (mLastAccelerometerSet && mLastMagnetometerSet) {
+            SensorManager.getRotationMatrix(mR, null, mLastAccelerometer, mLastMagnetometer);
+            SensorManager.getOrientation(mR, mOrientation);
+            float azimuthInRadians = mOrientation[0];
+            float azimuthInDegress = ((float)(Math.toDegrees(azimuthInRadians)+360)%360);
+            azimuthInDegress = azimuthInDegress + (float)bearing;
+            //float azimuthInDegress = (float)bearing;
+            Log.d("azimuth + bearing", azimuthInDegress + "");
+            RotateAnimation ra = new RotateAnimation(
+                    mCurrentDegree,
+                    -azimuthInDegress,
+                    Animation.RELATIVE_TO_SELF, 0.5f,
+                    Animation.RELATIVE_TO_SELF,
+                    0.5f);
+
+            ra.setDuration(250);
+
+            ra.setFillAfter(true);
+
+            mPointer.startAnimation(ra);
+            mCurrentDegree = -azimuthInDegress;
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // TODO Auto-generated method stub
+
     }
 }
