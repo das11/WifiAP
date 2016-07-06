@@ -1,11 +1,15 @@
 package com.example.lordden.myapplication;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.hardware.SensorManager;
 import android.location.Location;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -40,7 +44,9 @@ public class beacon extends AppCompatActivity implements
     private Marker marker;
 
     private double bearing;
-    private Firebase firelong, firelat;
+    private Firebase firelong, firelat, firessid, firepass;
+
+    String ssid, pass;
 
     boolean chk;
 
@@ -52,6 +58,36 @@ public class beacon extends AppCompatActivity implements
         Firebase.setAndroidContext(this);
         firelong = new Firebase("https://wifiap-1361.firebaseio.com/beacon_long");
         firelat= new Firebase("https://wifiap-1361.firebaseio.com/beacon_lat");
+        firessid = new Firebase("https://wifiap-1361.firebaseio.com/ssid");
+        firepass = new Firebase("https://wifiap-1361.firebaseio.com/pass");
+
+//        /////#####################
+//
+//        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+//                Manifest.permission.WRITE_SETTINGS)){
+//
+//        }else {
+//            ActivityCompat.requestPermissions(this,
+//                    new String[]{Manifest.permission.WRITE_SETTINGS},
+//                    121);
+//        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            if (Settings.System.canWrite(beacon.this)){
+                Log.d("perm _ write", "");
+            }
+            else
+            {
+                Log.d("perm _ 2", "");
+                Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS);
+                intent.setData(Uri.parse("package:" + getApplicationContext().getPackageName()));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+
+        }
+
+
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -75,12 +111,28 @@ public class beacon extends AppCompatActivity implements
                 Log.d("2:2","11");
             }
         }
+
+
+
     }
 
     @Override
     protected void onResume(){
         super.onResume();
         mGoogleApiClient.connect();
+
+        man.isAPon(beacon.this);
+        man.configAPState(beacon.this);
+        man.configCred(beacon.this);
+
+        ssid = man.ssid();
+        pass = man.pass();
+
+        firessid.setValue(ssid);
+        firepass.setValue(pass);
+        Log.d("ssidf", ssid);
+
+        Log.d("beacon", "beacon");
     }
 
 
@@ -170,11 +222,6 @@ public class beacon extends AppCompatActivity implements
 
         Toast.makeText(getApplicationContext(), "Coordinates : " + currentlong + " , " +  currentlat, Toast.LENGTH_SHORT).show();
 
-        man.isAPon(beacon.this);
-        man.configAPState(beacon.this);
-        man.configCred(beacon.this);
-        Log.d("beacon", "beacon");
-
         //Test location
 
         //Toast.makeText(getApplicationContext(),"lat :: " + currentlat + "long :: " + currentlong + "\nDIRn : " + bearing,Toast.LENGTH_SHORT).show();
@@ -205,6 +252,8 @@ public class beacon extends AppCompatActivity implements
     public void onLocationChanged(Location location) {
         Log.d("5","11");
         handleLocation(location);
+
+        mGoogleApiClient.disconnect();
     }
 
     @Override

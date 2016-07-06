@@ -12,6 +12,11 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.TextView;
 
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
+
 import java.util.List;
 
 public class target extends AppCompatActivity {
@@ -20,14 +25,48 @@ public class target extends AppCompatActivity {
     Thread refresh;
     TextView tvt;
 
-    boolean thread_kill = false;
+    private String ssid, pass;
+    Firebase firessid, firepass;
 
+
+    boolean thread_kill = false;
     int delay = 3 * 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_target);
+
+        Firebase.setAndroidContext(this);
+        firessid = new Firebase("https://wifiap-1361.firebaseio.com/ssid");
+        firepass = new Firebase("https://wifiap-1361.firebaseio.com/pass");
+        firessid.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                ssid = dataSnapshot.getValue(String.class);
+
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+        firepass.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                pass = dataSnapshot.getValue(String.class);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+
 
         tvt = (TextView) findViewById(R.id.tvt);
 
@@ -79,7 +118,7 @@ public class target extends AppCompatActivity {
     }
 
     private final BroadcastReceiver mWifiScanReceiver = new BroadcastReceiver() {
-        String ssid, data;
+        String mssid, data;
         String[] datas = new String[10];
         String[] datafreq = new String[10];
         String[] datalev = new String[10];
@@ -94,12 +133,12 @@ public class target extends AppCompatActivity {
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < mScanResults.size(); ++i){
                     Log.d("po","");
-                    ssid = mScanResults.get(i).SSID;
+                    mssid = mScanResults.get(i).SSID;
                     freq = mScanResults.get(i).frequency;
                     lev = mScanResults.get(i).level;
                     dis = calculateDistance(mScanResults.get(i).level, mScanResults.get(i).frequency);
 
-                    if (ssid.equals("Hash_Wave")){
+                    if (mssid.equals(ssid)){
                         datas[i] = ssid;
                         datafreq[i] = freq + "";
                         datalev[i] = lev + "";
@@ -112,6 +151,9 @@ public class target extends AppCompatActivity {
                         Log.d("ss ::", "" + ssid);
                         Log.d("dbm ::", "" + lev);
                         Log.d("dis :: ", "" + dis);
+                    }
+                    else{
+                        sb.append("No BEACON, GO HOME!");
                     }
 
                 }
