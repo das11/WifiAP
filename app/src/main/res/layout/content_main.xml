@@ -26,7 +26,6 @@
         android:layout_height="wrap_content"
         android:text="@string/btn2"
         android:id="@+id/btn2"
-        android:layout_marginTop="40dp"
         android:layout_below="@+id/btn1"
         android:layout_centerHorizontal="true" />
 
@@ -36,15 +35,13 @@
         android:text="@string/btn3"
         android:id="@+id/btn3"
         android:layout_below="@+id/btn2"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="45dp" />
+        android:layout_centerHorizontal="true" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Test"
         android:id="@+id/btn4"
-        android:layout_marginTop="33dp"
         android:layout_below="@+id/btn3"
         android:layout_centerHorizontal="true" />
 
@@ -54,5 +51,13 @@
         android:text="Pointer_test"
         android:id="@+id/button"
         android:layout_below="@+id/btn4"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Point"
+        android:id="@+id/pointbtn"
+        android:layout_below="@+id/button"
         android:layout_centerHorizontal="true" />
 </RelativeLayout>

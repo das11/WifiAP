@@ -3,28 +3,34 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.lordden.myapplication.Main2Activity">
+    tools:context="com.example.lordden.myapplication.Point">
 
     <android.support.v7.widget.CardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/view"
-        app:cardElevation="10dp"
-        app:cardUseCompatPadding="true"
-        android:layout_centerVertical="true"
+        android:id="@+id/view3"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Give it 5 secs"
-            android:id="@+id/textView" />
+            android:text="New Text"
+            android:id="@+id/tvt_point" />
+
     </android.support.v7.widget.CardView>
+
+    <ImageView
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:id="@+id/point_pointer"
+        android:src="@drawable/arrow"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
 
 
 </RelativeLayout>

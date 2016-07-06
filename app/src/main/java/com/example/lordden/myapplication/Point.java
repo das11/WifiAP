@@ -1,6 +1,10 @@
 package com.example.lordden.myapplication;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
@@ -8,21 +12,23 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
-import android.os.Bundle;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
-import com.google.android.gms.ads.mediation.MediationAdapter;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
@@ -34,13 +40,27 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements
+import java.util.List;
+
+public class Point extends AppCompatActivity implements
         SensorEventListener,
         OnMapReadyCallback,
         ActivityCompat.OnRequestPermissionsResultCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        com.google.android.gms.location.LocationListener {
+        com.google.android.gms.location.LocationListener{
+
+    WifiManager wms;
+    Thread refresh;
+    TextView tvt;
+
+    private String ssid, pass;
+    Firebase firessid, firepass;
+
+
+    boolean thread_kill = false;
+    int delay = 3 * 1000;
+
 
     private ImageView mPointer;
     private SensorManager mSensorManager;
@@ -62,7 +82,7 @@ public class MapsActivity extends FragmentActivity implements
     private Marker marker;
 
     private double bearing;
-    private  Firebase firelong, firelat;
+    private Firebase firelong, firelat;
 
     private double testlong, testlat = 0;
 
@@ -71,13 +91,67 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-//        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-//                .findFragmentById(R.id.map);
-//        mapFragment.getMapAsync(this);
+        setContentView(R.layout.activity_point);
 
         Firebase.setAndroidContext(this);
+
+
+        firessid = new Firebase("https://wifiap-1361.firebaseio.com/ssid");
+        firepass = new Firebase("https://wifiap-1361.firebaseio.com/pass");
+        firessid.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                ssid = dataSnapshot.getValue(String.class);
+
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+        firepass.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                pass = dataSnapshot.getValue(String.class);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+
+
+        tvt = (TextView) findViewById(R.id.tvt_point);
+
+        wms = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        registerReceiver(mWifiScanReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+
+        // wms.startScan();
+
+
+        refresh = new Thread() {
+            public void run() {
+
+                while (!thread_kill) {
+                    try {
+                        Thread.sleep(delay);
+                        Log.d("REF ::::::", "r");
+                        wms.startScan();
+
+                    } catch (InterruptedException e) {
+                    }
+                }
+            }
+        };
+        refresh.start();
+
+//###########
+
         firelong = new Firebase("https://wifiap-1361.firebaseio.com/beacon_long");
         firelat= new Firebase("https://wifiap-1361.firebaseio.com/beacon_lat");
 
@@ -112,7 +186,7 @@ public class MapsActivity extends FragmentActivity implements
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-        mPointer = (ImageView) findViewById(R.id.pointer_maps_act);
+        mPointer = (ImageView) findViewById(R.id.point_pointer);
 
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -139,7 +213,6 @@ public class MapsActivity extends FragmentActivity implements
                 Log.d("2:2","11");
             }
         }
-
 
     }
 
@@ -171,16 +244,6 @@ public class MapsActivity extends FragmentActivity implements
         }
     }
 
-
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -239,7 +302,7 @@ public class MapsActivity extends FragmentActivity implements
 
         bearing = bearing(currentlong, currentlat, testlong, testlat);
 
-        Toast.makeText(getApplicationContext(),"lat :: " + currentlat + "long :: " + currentlong + "\nDIRn : " + bearing,Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplicationContext(),"lat :: " + currentlat + "long :: " + currentlong + "\nDIRn : " + bearing,Toast.LENGTH_SHORT).show();
 
         if(marker != null){
             marker.remove();
@@ -257,7 +320,7 @@ public class MapsActivity extends FragmentActivity implements
                 .build();
 
         //mMap.moveCamera(CameraUpdateFactory.newLatLng(latlong));
-       // mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 2000, null);
+        // mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 2000, null);
 
 
 
@@ -284,12 +347,12 @@ public class MapsActivity extends FragmentActivity implements
 
         res = Math.atan2(Math.toRadians(x),Math.toRadians(y));
         res = Math.toDegrees(res);
-//        if (res < 0){
-//            res = res + 360;
-//            Log.d("res - ", res + "");
-//
-//            return res;
-//        }
+        if (res < 0){
+            res = res + 360;
+            Log.d("res - ", res + "");
+
+            return res;
+        }
         Log.d("Bearing :: ", "" + res);
 
         return res;
@@ -339,4 +402,85 @@ public class MapsActivity extends FragmentActivity implements
         // TODO Auto-generated method stub
 
     }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent objEvent) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            onBackPressed();
+            return true;
+        }
+        return super.onKeyUp(keyCode, objEvent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.d("back", "back");
+        thread_kill = true;
+        finish();
+    }
+
+    @Override
+    protected void onDestroy(){
+        Log.v("dsds","dsdsd");
+        unregisterReceiver(mWifiScanReceiver);
+        super.onDestroy();
+    }
+
+    private final BroadcastReceiver mWifiScanReceiver = new BroadcastReceiver() {
+        String mssid, data;
+        String[] datas = new String[10];
+        String[] datafreq = new String[10];
+        String[] datalev = new String[10];
+        String[] datadis = new String[10];
+        int lev;
+        double dis, freq;
+
+        @Override
+        public void onReceive(Context c, Intent intent) {
+            if (intent.getAction().equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
+                List<ScanResult> mScanResults = wms.getScanResults();
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < mScanResults.size(); ++i){
+                    Log.d("po","");
+                    mssid = mScanResults.get(i).SSID;
+                    freq = mScanResults.get(i).frequency;
+                    lev = mScanResults.get(i).level;
+                    dis = calculateDistance(mScanResults.get(i).level, mScanResults.get(i).frequency);
+
+                    if (mssid.equals(ssid)){
+                        datas[i] = ssid;
+                        datafreq[i] = freq + "";
+                        datalev[i] = lev + "";
+                        datadis[i] = dis + "";
+
+
+                        sb.append("\n\n dis ::" + datadis[i]);
+
+                        Log.d("RE", sb.toString());
+                        Log.d("ss ::", "" + ssid);
+                        Log.d("dbm ::", "" + lev);
+                        Log.d("dis :: ", "" + dis);
+                    }
+                    else{
+                        sb.append("No BEACON, GO HOME!");
+                    }
+
+                }
+                Log.d("SR:", mScanResults + "");
+                tvt.setText(sb.toString());
+
+
+            }
+        }
+    };
+
+    public double calculateDistance(double levelInDb, double freqInMHz)    {
+        double exp = (27.55 - (20 * Math.log10(freqInMHz)) + Math.abs(levelInDb)) / 20.0;
+        return Math.pow(10.0, exp);
+    }
+
+
+
 }
+
+

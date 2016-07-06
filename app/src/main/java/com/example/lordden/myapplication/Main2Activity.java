@@ -105,7 +105,7 @@ public class Main2Activity extends AppCompatActivity {
                     datadis[i] = dis + "";
 
 
-                    sb.append("\n\nSSID :: " + datas[i] + " Freq :: " + datafreq[i] + " dBm ::" + datalev[i] + " dis ::" + datadis[i]);
+                    sb.append("\n\nSSID :: " + datas[i] + " Freq :: " + datafreq[i] + " dBm ::" + datalev[i] + " \nDistance ::" + datadis[i]);
 
                     Log.d("RE", sb.toString());
                     Log.d("ss ::", "" + ssid);
