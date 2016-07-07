@@ -58,6 +58,15 @@
         android:layout_height="wrap_content"
         android:text="Point"
         android:id="@+id/pointbtn"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/btn4" />
+
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/busybtn"
         android:layout_below="@+id/button"
-        android:layout_centerHorizontal="true" />
+        android:layout_alignStart="@+id/btn3"
+        android:layout_marginTop="44dp"
+        android:checked="false" />
 </RelativeLayout>

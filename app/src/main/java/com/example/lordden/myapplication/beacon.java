@@ -44,7 +44,7 @@ public class beacon extends AppCompatActivity implements
     private Marker marker;
 
     private double bearing;
-    private Firebase firelong, firelat, firessid, firepass;
+    private Firebase firelong, firelat, firessid, firepass, firebusy;
 
     String ssid, pass;
 
@@ -60,17 +60,9 @@ public class beacon extends AppCompatActivity implements
         firelat= new Firebase("https://wifiap-1361.firebaseio.com/beacon_lat");
         firessid = new Firebase("https://wifiap-1361.firebaseio.com/ssid");
         firepass = new Firebase("https://wifiap-1361.firebaseio.com/pass");
+        firebusy = new Firebase("https://wifiap-1361.firebaseio.com/busy");
 
-//        /////#####################
-//
-//        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-//                Manifest.permission.WRITE_SETTINGS)){
-//
-//        }else {
-//            ActivityCompat.requestPermissions(this,
-//                    new String[]{Manifest.permission.WRITE_SETTINGS},
-//                    121);
-//        }
+        firebusy.setValue("true");
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
             if (Settings.System.canWrite(beacon.this)){
@@ -260,6 +252,8 @@ public class beacon extends AppCompatActivity implements
     protected void onStop(){
         man.configAPState(beacon.this);
         man.configWifi(beacon.this);
+
+        firebusy.setValue("false");
         super.onStop();
     }
 }

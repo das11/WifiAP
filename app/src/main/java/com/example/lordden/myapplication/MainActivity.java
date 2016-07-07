@@ -10,6 +10,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RadioButton;
+
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -17,12 +23,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private WifiManager wms;
     APManager man;
 
+    Firebase firebusy;
+    boolean busy = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        final RadioButton busybtn = (RadioButton)findViewById(R.id.busybtn);
+
+        busybtn.setText("Checking backend ...");
+
+        Firebase.setAndroidContext(this);
+        firebusy = new Firebase("https://wifiap-1361.firebaseio.com/busy");
+        firebusy.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                busy = dataSnapshot.getValue(boolean.class);
+
+                if (!busy){
+                    busybtn.setChecked(false);
+                    busybtn.setText("Backend : Available");
+                }else {
+                    busybtn.setChecked(true);
+                    busybtn.setText("Backend : Busy");
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
@@ -41,11 +76,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Button btn = (Button)findViewById(R.id.button);
         Button btn6 = (Button)findViewById(R.id.pointbtn);
        // Button btn5 = (Button)findViewById(R.id.btn5);
+
+
 //
-        btn2.setVisibility(View.VISIBLE);
+//        btn2.setVisibility(View.INVISIBLE);
 //        btn3.setVisibility(View.INVISIBLE);
 //        btn4.setVisibility(View.INVISIBLE);
-//        btn.setVisibility(View.INVISIBLE);
+
+       // btn.setVisibility(View.INVISIBLE);
 
         btn1.setOnClickListener(this);
         btn2.setOnClickListener(this);
@@ -53,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn4.setOnClickListener(this);
         btn.setOnClickListener(this);
         btn6.setOnClickListener(this);
+        busybtn.setOnClickListener(this);
         //btn5.setOnClickListener(this);
 
 

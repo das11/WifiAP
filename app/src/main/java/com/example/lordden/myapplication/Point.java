@@ -347,12 +347,12 @@ public class Point extends AppCompatActivity implements
 
         res = Math.atan2(Math.toRadians(x),Math.toRadians(y));
         res = Math.toDegrees(res);
-        if (res < 0){
-            res = res + 360;
-            Log.d("res - ", res + "");
-
-            return res;
-        }
+//        if (res < 0){
+//            res = res + 360;
+//            Log.d("res - ", res + "");
+//
+//            return res;
+//        }
         Log.d("Bearing :: ", "" + res);
 
         return res;
