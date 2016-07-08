@@ -44,7 +44,7 @@ public class beacon extends AppCompatActivity implements
     private Marker marker;
 
     private double bearing;
-    private Firebase firelong, firelat, firessid, firepass, firebusy;
+    private Firebase firerroot, firelong, firelat, firessid, firepass, firebusy;
 
     String ssid, pass;
 

@@ -69,4 +69,20 @@
         android:layout_alignStart="@+id/btn3"
         android:layout_marginTop="44dp"
         android:checked="false" />
+
+    <EditText
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/keyedit"
+        android:layout_below="@+id/busybtn"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="O"
+        android:id="@+id/pushbtn"
+        android:layout_alignTop="@+id/keyedit"
+        android:layout_toEndOf="@+id/btn4" />
 </RelativeLayout>

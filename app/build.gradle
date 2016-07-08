@@ -5,8 +5,10 @@ android {
     buildToolsVersion "23.0.3"
 
     defaultConfig {
-        applicationId "com.example.lordden.myapplication"
-        minSdkVersion 19
+        manifestPlaceholders = [HOCKEYAPP_APP_ID: "a26d924cbc6c40239cd7041c45ed8b33"]
+
+//        applicationId "com.example.lordden.myapplication"
+        minSdkVersion 17
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -38,4 +40,6 @@ dependencies {
     compile 'com.google.android.gms:play-services-auth:8.4.0'
     compile 'com.firebase:firebase-client-android:2.3.1'
     compile 'com.google.android.gms:play-services-gcm:8.4.0'
+    compile 'net.hockeyapp.android:HockeySDK:4.0.1'
+
 }
