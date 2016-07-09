@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "332856705924",
+    "firebase_url": "https://wifiap-1361.firebaseio.com",
+    "project_id": "wifiap-1361",
+    "storage_bucket": "wifiap-1361.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:332856705924:android:0d7d8af4ab2b8438",
+        "android_client_info": {
+          "package_name": "com.example.lordden.myapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "332856705924-o4fcfo027j2r91h2prf715nfga374u4f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.lordden.myapplication",
+            "certificate_hash": "541502DDE1156BAE9C3CEE945AF3F7EDC91CA51A"
+          }
+        },
+        {
+          "client_id": "332856705924-n67f08k0a6sirul9p2qis1hb8dvn9k6v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDaS8sd78f6OzPudx4OAxBRCTzmD7twgQk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "332856705924-n67f08k0a6sirul9p2qis1hb8dvn9k6v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

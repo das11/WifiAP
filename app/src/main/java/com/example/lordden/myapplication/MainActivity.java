@@ -116,34 +116,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-////        //fireroot.addChildEventListener(new ChildEventListener() {
-////            @Override
-////            public void onDataChange(DataSnapshot dataSnapshot) {
-////                for (DataSnapshot data : dataSnapshot.getChildren()){
-//////                    for (DataSnapshot av_node : data.getChildren()){
-////////                        mbusy = av_node.getValue(boolean.class);
-////////                        if (!mbusy){
-////////                            for (DataSnapshot key_da : data.getChildren()){
-////////                                if ((key_da.getKey().toString()).equals("key")){
-////////                                    ref = key_da.getRef();
-////////                                    ref.setValue(key);
-////////
-////////                                    Log.d("FIRE ::", key + busy + "");
-////////                                }
-////////                            }
-////////                        }
-//////                        Log.d("Fire \n", dataSnapshot + "");
-//////                    }
-////                    Log.d("Fire \n", dataSnapshot + "");
-////                }
-////            }
-//
-//            @Override
-//            public void onCancelled(FirebaseError firebaseError) {
-//
-//            }
-//        });
-
         firebusy.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
