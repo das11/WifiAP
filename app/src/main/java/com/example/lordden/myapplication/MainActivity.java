@@ -15,7 +15,6 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
-import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
@@ -31,9 +30,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private WifiManager wms;
     APManager man;
 
-    Firebase firebusy, fireroot, ref;
+    Firebase firebusy, fireroot, fireref;
     boolean busy = false, mbusy;
-    String key, test_busy;
+    String key, test_busy, ref = "https://wifiap-1361.firebaseio.com/node ", t = "nobi";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,49 +71,103 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fireroot = new Firebase("https://wifiap-1361.firebaseio.com/");
         firebusy = new Firebase("https://wifiap-1361.firebaseio.com/busy");
 
-        fireroot.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-//                for (DataSnapshot data : dataSnapshot.getChildren()){
-////                    for (DataSnapshot av_node : data.getChildren()){
-//////                        mbusy = av_node.getValue(boolean.class);
-//////                        if (!mbusy){
-//////                            for (DataSnapshot key_da : data.getChildren()){
-//////                                if ((key_da.getKey().toString()).equals("key")){
-//////                                    ref = key_da.getRef();
-//////                                    ref.setValue(key);
-//////
-//////                                    Log.d("FIRE ::", key + busy + "");
-//////                                }
-//////                            }
-//////                        }
-////                        Log.d("Fire \n", dataSnapshot + "");
-////                    }
-//                    Log.d("Fire \n", dataSnapshot + "");
+//        Query qref = fireroot.orderByChild("busy").limitToFirst(1).equalTo("pappuram");
+//        Log.d("query", qref.toString());
+//        Log.d("query 2", qref.getRef().toString());
+//
+//        qref.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                for (DataSnapshot ch : dataSnapshot.getChildren() ){
+//                    Log.d("qer", ch.toString());
+//                    Log.d("qer 2", ch.getKey());
+//
+//                    ch.child("key").getRef().setValue(t);
 //                }
-                Log.d("DUB", dataSnapshot.getKey().toString());
-            }
+//            }
+//
+//            @Override
+//            public void onCancelled(FirebaseError firebaseError) {
+//
+//            }
+//        });
 
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
+        //######################################
+//        Query qref = fireroot.orderByChild("busy").equalTo(false);
+//        Log.d("Query", qref + "");
+//
+//        qref.addChildEventListener(new ChildEventListener() {
+//            @Override
+//            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+//
+//            }
+//
+//            @Override
+//            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+//
+//            }
+//
+//            @Override
+//            public void onChildRemoved(DataSnapshot dataSnapshot) {
+//
+//            }
+//
+//            @Override
+//            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(FirebaseError firebaseError) {
+//
+//            }
+//        });
+//
+//        fireroot.addChildEventListener(new ChildEventListener() {
+//            @Override
+//            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+//
+//            }
+//
+//            @Override
+//            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+////                for (DataSnapshot data : dataSnapshot.getChildren()){
+//////                    for (DataSnapshot av_node : data.getChildren()){
+////////                        mbusy = av_node.getValue(boolean.class);
+////////                        if (!mbusy){
+////////                            for (DataSnapshot key_da : data.getChildren()){
+////////                                if ((key_da.getKey().toString()).equals("key")){
+////////                                    ref = key_da.getRef();
+////////                                    ref.setValue(key);
+////////
+////////                                    Log.d("FIRE ::", key + busy + "");
+////////                                }
+////////                            }
+////////                        }
+//////                        Log.d("Fire \n", dataSnapshot + "");
+//////                    }
+////                    Log.d("Fire \n", dataSnapshot + "");
+////                }
+//                Log.d("DUB", dataSnapshot.toString());
+//            }
+//
+//            @Override
+//            public void onChildRemoved(DataSnapshot dataSnapshot) {
+//
+//            }
+//
+//            @Override
+//            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(FirebaseError firebaseError) {
+//
+//            }
+//        });
 
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
+        //####################
 
         firebusy.addValueEventListener(new ValueEventListener() {
             @Override
@@ -250,6 +303,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 case R.id.btn1 :
                     Intent i2 = new Intent(MainActivity.this, beacon.class);
+                    i2.putExtra("key", key);
                     startActivity(i2);
                     break;
                 case R.id.btn2 :
@@ -270,6 +324,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case R.id.pointbtn:
                     Intent i6 = new Intent(MainActivity.this, Point.class);
+                    i6.putExtra("key", key);
                     startActivity(i6);
                     break;
 

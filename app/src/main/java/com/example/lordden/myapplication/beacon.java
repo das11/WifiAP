@@ -15,7 +15,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
+import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
@@ -44,9 +48,12 @@ public class beacon extends AppCompatActivity implements
     private Marker marker;
 
     private double bearing;
-    private Firebase firerroot, firelong, firelat, firessid, firepass, firebusy;
+    private Firebase fireroot, firelong, firelat, firessid, firepass, firebusy;
+    public Firebase ref;
 
-    String ssid, pass;
+    double currentlat, currentlong;
+
+    String ssid, pass, key;
 
     boolean chk;
 
@@ -56,13 +63,41 @@ public class beacon extends AppCompatActivity implements
         setContentView(R.layout.activity_beacon);
 
         Firebase.setAndroidContext(this);
+        fireroot = new Firebase("https://wifiap-1361.firebaseio.com/");
         firelong = new Firebase("https://wifiap-1361.firebaseio.com/beacon_long");
         firelat= new Firebase("https://wifiap-1361.firebaseio.com/beacon_lat");
         firessid = new Firebase("https://wifiap-1361.firebaseio.com/ssid");
         firepass = new Firebase("https://wifiap-1361.firebaseio.com/pass");
         firebusy = new Firebase("https://wifiap-1361.firebaseio.com/busy");
 
-        firebusy.setValue("true");
+        key = getIntent().getExtras().getString("key");
+
+        Query qref = fireroot.orderByChild("busy").limitToFirst(1).equalTo("pappuram");
+        Log.d("query", qref.toString());
+        Log.d("query 2", qref.getRef().toString());
+
+        qref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot ch : dataSnapshot.getChildren()){
+                    Log.d("qer", ch.toString());
+                    Log.d("qer 2", ch.getKey());
+
+                    ch.child("key").getRef().setValue(key);
+                    ch.child("busy").getRef().setValue("true");
+                    ch.child("beacon_lat").getRef().setValue(currentlat);
+                    ch.child("beacon_long").getRef().setValue(currentlong);
+                    ch.child("ssid").getRef().setValue(ssid);
+
+
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
             if (Settings.System.canWrite(beacon.this)){
@@ -120,8 +155,8 @@ public class beacon extends AppCompatActivity implements
         ssid = man.ssid();
         pass = man.pass();
 
-        firessid.setValue(ssid);
-        firepass.setValue(pass);
+//        firessid.setValue(ssid);
+//        firepass.setValue(pass);
         Log.d("ssidf", ssid);
 
         Log.d("beacon", "beacon");
@@ -206,11 +241,11 @@ public class beacon extends AppCompatActivity implements
         Log.d("current_location", location.toString());
 
         //Current location
-        double currentlat = location.getLatitude();
-        double currentlong = location.getLongitude();
+        currentlat = location.getLatitude();
+        currentlong = location.getLongitude();
 
-        firelong.setValue(currentlong);
-        firelat.setValue(currentlat);
+//        firelong.setValue(currentlong);
+//        firelat.setValue(currentlat);
 
         Toast.makeText(getApplicationContext(), "Coordinates : " + currentlong + " , " +  currentlat, Toast.LENGTH_SHORT).show();
 
@@ -253,7 +288,30 @@ public class beacon extends AppCompatActivity implements
         man.configAPState(beacon.this);
         man.configWifi(beacon.this);
 
-        firebusy.setValue("false");
+        Query qref = fireroot.orderByChild("key").limitToFirst(1).equalTo(key);
+        Log.d("query", qref.toString());
+        Log.d("query 2", qref.getRef().toString());
+
+        qref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot ch : dataSnapshot.getChildren()){
+                    Log.d("qer", ch.toString());
+                    Log.d("qer 2", ch.getKey());
+
+                    ch.child("busy").getRef().setValue("false");
+
+
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+//        firebusy.setValue("false");
         super.onStop();
     }
 }

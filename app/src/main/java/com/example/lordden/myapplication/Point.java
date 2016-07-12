@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -54,7 +55,7 @@ public class Point extends AppCompatActivity implements
     Thread refresh;
     TextView tvt;
 
-    private String ssid, pass;
+    private String ssid, pass, key;
     Firebase firessid, firepass;
 
 
@@ -82,7 +83,7 @@ public class Point extends AppCompatActivity implements
     private Marker marker;
 
     private double bearing;
-    private Firebase firelong, firelat;
+    private Firebase firelong, firelat, fireroot;
 
     private double testlong, testlat = 0;
 
@@ -95,15 +96,56 @@ public class Point extends AppCompatActivity implements
 
         Firebase.setAndroidContext(this);
 
+        key = getIntent().getExtras().getString("key");
 
+        fireroot = new Firebase("https://wifiap-1361.firebaseio.com/");
         firessid = new Firebase("https://wifiap-1361.firebaseio.com/ssid");
         firepass = new Firebase("https://wifiap-1361.firebaseio.com/pass");
-        firessid.addValueEventListener(new ValueEventListener() {
+
+//        firessid.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//
+//                ssid = dataSnapshot.getValue(String.class);
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(FirebaseError firebaseError) {
+//
+//            }
+//        });
+//
+//        firepass.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                pass = dataSnapshot.getValue(String.class);
+//            }
+//
+//            @Override
+//            public void onCancelled(FirebaseError firebaseError) {
+//
+//            }
+//        });
+
+
+        Query qref = fireroot.orderByChild("key").limitToFirst(1).equalTo(key);
+        Log.d("query", qref.toString());
+        Log.d("query 2", qref.getRef().toString());
+
+        qref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot ch : dataSnapshot.getChildren()){
+                    Log.d("qer", ch.toString());
+                    Log.d("qer 2", ch.getKey());
 
-                ssid = dataSnapshot.getValue(String.class);
+                    testlat = ch.child("beacon_lat").getValue(double.class);
+                    testlong = ch.child("beacon_long").getValue(double.class);
+                    ssid = ch.child("ssid").getValue(String.class);
 
+
+                }
             }
 
             @Override
@@ -111,19 +153,6 @@ public class Point extends AppCompatActivity implements
 
             }
         });
-
-        firepass.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                pass = dataSnapshot.getValue(String.class);
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-
 
 
         tvt = (TextView) findViewById(R.id.tvt_point);
@@ -155,33 +184,33 @@ public class Point extends AppCompatActivity implements
         firelong = new Firebase("https://wifiap-1361.firebaseio.com/beacon_long");
         firelat= new Firebase("https://wifiap-1361.firebaseio.com/beacon_lat");
 
-        firelong.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                double datalong = dataSnapshot.getValue(double.class);
-                testlong = datalong;
-                Log.d("firelonng", testlong + "");
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-
-        firelat.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                double datalat = dataSnapshot.getValue(double.class);
-                testlat = datalat;
-                Log.d("firelat", testlat + "");
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
+//        firelong.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                double datalong = dataSnapshot.getValue(double.class);
+//                testlong = datalong;
+//                Log.d("firelonng", testlong + "");
+//            }
+//
+//            @Override
+//            public void onCancelled(FirebaseError firebaseError) {
+//
+//            }
+//        });
+//
+//        firelat.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                double datalat = dataSnapshot.getValue(double.class);
+//                testlat = datalat;
+//                Log.d("firelat", testlat + "");
+//            }
+//
+//            @Override
+//            public void onCancelled(FirebaseError firebaseError) {
+//
+//            }
+//        });
 
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
