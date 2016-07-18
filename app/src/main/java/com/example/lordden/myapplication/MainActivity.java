@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 
 import java.io.File;
@@ -69,28 +70,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Firebase.setAndroidContext(this);
         fireroot = new Firebase("https://wifiap-1361.firebaseio.com/");
-        firebusy = new Firebase("https://wifiap-1361.firebaseio.com/busy");
+        //firebusy = new Firebase("https://wifiap-1361.firebaseio.com/busy");
 
-//        Query qref = fireroot.orderByChild("busy").limitToFirst(1).equalTo("pappuram");
-//        Log.d("query", qref.toString());
-//        Log.d("query 2", qref.getRef().toString());
-//
-//        qref.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                for (DataSnapshot ch : dataSnapshot.getChildren() ){
-//                    Log.d("qer", ch.toString());
-//                    Log.d("qer 2", ch.getKey());
-//
-//                    ch.child("key").getRef().setValue(t);
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(FirebaseError firebaseError) {
-//
-//            }
-//        });
+        Query qref = fireroot.orderByChild("busy").limitToFirst(1).equalTo("pappuram");
+        Log.d("query", qref.toString());
+        Log.d("query 2", qref.getRef().toString());
+
+        qref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot ch : dataSnapshot.getChildren() ){
+                    Log.d("qer", ch.toString());
+                    Log.d("qer 2", ch.getKey());
+
+                    ch.child("key").getRef().setValue(t);
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
 
         //######################################
 //        Query qref = fireroot.orderByChild("busy").equalTo(false);
@@ -169,25 +170,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //####################
 
-        firebusy.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                busy = dataSnapshot.getValue(boolean.class);
-
-                if (!busy){
-                    busybtn.setChecked(false);
-                    busybtn.setText("Backend : Available");
-                }else {
-                    busybtn.setChecked(true);
-                    busybtn.setText("Backend : Busy");
-                }
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
+//
+        //});
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
@@ -311,7 +295,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     startActivity(i);
                     break;
                 case R.id.btn3 :
-                    Intent i3 = new Intent(MainActivity.this, target.class);
+                    Intent i3 = new Intent(MainActivity.this, age.class);
                     startActivity(i3);
                     break;
                 case R.id.btn4:

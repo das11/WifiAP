@@ -40,12 +40,14 @@ public class Main2Activity extends AppCompatActivity {
         refresh = new Thread(){
 
             public void run(){
-                try{
-                    Thread.sleep(delay);
-                    Log.d("REF ::", "r");
-                    wms.startScan();
-                }catch (InterruptedException e){
-                    e.printStackTrace();
+                while (!thread_kill){
+                    try{
+                        Thread.sleep(delay);
+                        Log.d("REF ::", "r");
+                        wms.startScan();
+                    }catch (InterruptedException e){
+                        e.printStackTrace();
+                    }
                 }
             }
         };
