@@ -283,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             switch (view.getId()){
 
                 case R.id.btn1 :
-                    Intent i2 = new Intent(MainActivity.this, beacon.class);
+                    Intent i2 = new Intent(MainActivity.this, testLoc.class);
                     i2.putExtra("key", key);
                     startActivity(i2);
                     break;

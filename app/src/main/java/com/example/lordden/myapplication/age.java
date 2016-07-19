@@ -57,7 +57,7 @@ public class age extends AppCompatActivity {
         }
 
 
-        refresh = new Thread(){
+        refresh =  new Thread(){
 
             public void run(){
                 while(!thread_kill){

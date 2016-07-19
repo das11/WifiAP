@@ -117,7 +117,11 @@ public class beacon extends AppCompatActivity implements
 
 
 
-
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
 
         if (chk = checkperm()){
             mLocationRequest = LocationRequest.create()
@@ -143,20 +147,22 @@ public class beacon extends AppCompatActivity implements
     }
 
     private void buildLocClient(){
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
+        if (mGoogleApiClient != null){
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
         mGoogleApiClient.connect();
     }
 
     @Override
     protected void onResume(){
         super.onResume();
-        //mGoogleApiClient.connect();
+        mGoogleApiClient.connect();
 
-        buildLocClient();
+        //buildLocClient();
 
 
 
