@@ -15,11 +15,7 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
-import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.Query;
-import com.firebase.client.ValueEventListener;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View view) {
                 key = keyedit.getText().toString();
+                Log.d("key", key);
             }
         });
 
@@ -72,26 +69,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fireroot = new Firebase("https://wifiap-1361.firebaseio.com/");
         //firebusy = new Firebase("https://wifiap-1361.firebaseio.com/busy");
 
-        Query qref = fireroot.orderByChild("busy").limitToFirst(1).equalTo("pappuram");
-        Log.d("query", qref.toString());
-        Log.d("query 2", qref.getRef().toString());
-
-        qref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot ch : dataSnapshot.getChildren() ){
-                    Log.d("qer", ch.toString());
-                    Log.d("qer 2", ch.getKey());
-
-                    ch.child("key").getRef().setValue(t);
-                }
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
+//        Query qref = fireroot.orderByChild("busy").limitToFirst(1).equalTo("pappuram");
+//        Log.d("query", qref.toString());
+//        Log.d("query 2", qref.getRef().toString());
+//
+//        qref.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                for (DataSnapshot ch : dataSnapshot.getChildren() ){
+//                    Log.d("qer", ch.toString());
+//                    Log.d("qer 2", ch.getKey());
+//
+//                    ch.child("key").getRef().setValue(key);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(FirebaseError firebaseError) {
+//
+//            }
+//        });
 
         //######################################
 //        Query qref = fireroot.orderByChild("busy").equalTo(false);

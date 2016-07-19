@@ -71,12 +71,13 @@ public class beacon extends AppCompatActivity implements
         firebusy = new Firebase("https://wifiap-1361.firebaseio.com/busy");
 
         key = getIntent().getExtras().getString("key");
+        Log.d("key_beacon", key);
 
         Query qref = fireroot.orderByChild("busy").limitToFirst(1).equalTo("pappuram");
         Log.d("query", qref.toString());
         Log.d("query 2", qref.getRef().toString());
 
-        qref.addValueEventListener(new ValueEventListener() {
+        qref.addValueEventListener(new ValueEventListener(){
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot ch : dataSnapshot.getChildren()){
@@ -87,7 +88,7 @@ public class beacon extends AppCompatActivity implements
                     ch.child("busy").getRef().setValue("true");
                     ch.child("beacon_lat").getRef().setValue(currentlat);
                     ch.child("beacon_long").getRef().setValue(currentlong);
-                    ch.child("ssid").getRef().setValue(ssid);
+                    //ch.child("ssid").getRef().setValue(ssid);
 
 
                 }
@@ -116,11 +117,7 @@ public class beacon extends AppCompatActivity implements
 
 
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
+
 
         if (chk = checkperm()){
             mLocationRequest = LocationRequest.create()
@@ -141,24 +138,39 @@ public class beacon extends AppCompatActivity implements
 
 
 
+
+
+    }
+
+    private void buildLocClient(){
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
     }
 
     @Override
     protected void onResume(){
         super.onResume();
-        mGoogleApiClient.connect();
+        //mGoogleApiClient.connect();
 
-        man.isAPon(beacon.this);
-        man.configAPState(beacon.this);
-        man.configCred(beacon.this);
+        buildLocClient();
 
-        ssid = man.ssid();
-        pass = man.pass();
+
+
+//        man.isAPon(beacon.this);
+//        man.configAPState(beacon.this);
+//        man.configCred(beacon.this);
+
+//        ssid = man.ssid();
+//        pass = man.pass();
 
 //        firessid.setValue(ssid);
 //        firepass.setValue(pass);
-        Log.d("ssidf", ssid);
 
+//        Log.d("ssidf", ssid);
         Log.d("beacon", "beacon");
     }
 
@@ -285,8 +297,8 @@ public class beacon extends AppCompatActivity implements
 
     @Override
     protected void onStop(){
-        man.configAPState(beacon.this);
-        man.configWifi(beacon.this);
+//        man.configAPState(beacon.this);
+//        man.configWifi(beacon.this);
 
         Query qref = fireroot.orderByChild("key").limitToFirst(1).equalTo(key);
         Log.d("query", qref.toString());
