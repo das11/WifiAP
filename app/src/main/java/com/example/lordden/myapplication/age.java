@@ -11,6 +11,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
+import com.firebase.client.ValueEventListener;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,31 +36,59 @@ public class age extends AppCompatActivity {
     List<Integer> llev = new ArrayList<Integer>();
     List<Integer> flag = new ArrayList<Integer>();
     List<Integer> beacon_strength = new ArrayList<Integer>();
+    String key;
     Thread refresh;
+
+    Firebase fireroot;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_age);
 
+        key = getIntent().getExtras().getString("key");
+        Log.d("key", key);
+
         APManager.configWifi(age.this);
 
-        wms2 = (WifiManager)getSystemService(Context.WIFI_SERVICE);
-        registerReceiver(mWifiScanReceiver2, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+        Firebase.setAndroidContext(this);
+        fireroot = new Firebase("https://wifiap-1361.firebaseio.com/");
+
+
+        Query qref = fireroot.orderByChild("key").equalTo(key);
+        qref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot ch : dataSnapshot.getChildren()){
+                    //lssid = ch.child("ap_list").getValue(String.class);
+                    llev = ch.child("ap_lev").getValue(List.class);
+                    Log.d("lev", llev.toString());
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+//        wms2 = (WifiManager)getSystemService(Context.WIFI_SERVICE);
+//        registerReceiver(mWifiScanReceiver2, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
         wms = (WifiManager)getSystemService(Context.WIFI_SERVICE);
         registerReceiver(wifiScanReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
 
 
-        int h = 0;
-        while(h == 0){
-            while (!threadKill2){
-                wms2.startScan();
-                threadKill2 = true;
-                ++h;
-            }
-        }
+
+//        int h = 0;
+//        while(h == 0){
+//            while (!threadKill2){
+//                wms2.startScan();
+//                threadKill2 = true;
+//                ++h;
+//            }
+//        }
 
 
         refresh =  new Thread(){
@@ -93,7 +127,7 @@ public class age extends AppCompatActivity {
 
     @Override
     protected void onDestroy(){
-        unregisterReceiver(mWifiScanReceiver2);
+        //unregisterReceiver(mWifiScanReceiver2);
         unregisterReceiver(wifiScanReceiver);
         super.onDestroy();
     }
@@ -117,7 +151,7 @@ public class age extends AppCompatActivity {
                     strength.add(mscanres.get(i).level);
                 }
                 Log.d("for", ssid.toString());
-                compare(ssid, strength);
+                //compare(ssid, strength);
 
             }
         }

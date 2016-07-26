@@ -293,6 +293,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case R.id.btn3 :
                     Intent i3 = new Intent(MainActivity.this, age.class);
+                    i3.putExtra("key", key);
                     startActivity(i3);
                     break;
                 case R.id.btn4:

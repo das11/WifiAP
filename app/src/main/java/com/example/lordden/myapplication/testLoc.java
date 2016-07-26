@@ -78,7 +78,7 @@ public class testLoc extends AppCompatActivity implements
     Thread refresh, runAP;
     int h = 0;
     boolean thread_kill = false, flag_list = false, thread_kill_2 = false;
-    String tempssid;
+    String tempssid, templev;
     APManager man;
 
 
@@ -116,6 +116,8 @@ public class testLoc extends AppCompatActivity implements
         };
         refresh.start();
 
+
+        //thread kill 2 runs once to initiate hotspot :: if flag successful
         runAP = new Thread(){
             public void run(){
                 while (!thread_kill_2){
@@ -366,6 +368,10 @@ public class testLoc extends AppCompatActivity implements
 
             if (intent.getAction().equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)){
                 List<ScanResult> scanres = wms.getScanResults();
+
+
+                lssid.clear();
+                llev.clear();
                 for (int i = 0; i < scanres.size(); ++i){
                     ssid = scanres.get(i).SSID;
                     lev = scanres.get(i).level;
@@ -376,14 +382,20 @@ public class testLoc extends AppCompatActivity implements
 
                 Log.d("lssid@size", lssid.size() + "");
                 Log.d("lssid", lssid.toString());
+                Log.d("lssid lev", llev.toString());
 
 
                 Query qref = fireroot.orderByChild("key").limitToFirst(1).equalTo(key);
                 Log.d("query", qref.toString());
                 Log.d("query 2", qref.getRef().toString());
+
+                templev = "";
+                tempssid = "";
                 tempssid = lssid.toString();
+                templev = llev.toString();
 
                 Log.d("lssid 2", tempssid);
+                Log.d("lssid 2 lev", templev);
 
                 while (run_once == 0){
                     max = lssid.size();
@@ -397,11 +409,12 @@ public class testLoc extends AppCompatActivity implements
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             for (DataSnapshot ch : dataSnapshot.getChildren()){
+                                ch.child("ap_lev").getRef().setValue(llev);
                                 ch.child("ap_list").getRef().setValue(tempssid);
+
                                 Log.d("list ap", tempssid);
-                                flag_list = true;
-                                thread_kill = true;
-                                lssid.clear();
+                                Log.d("list ap lev", templev);
+
 
                             }
                         }
@@ -411,6 +424,9 @@ public class testLoc extends AppCompatActivity implements
 
                         }
                     });
+                }else {
+                    thread_kill = true;
+                    flag_list = true;
                 }
 
             }
